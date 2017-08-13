@@ -3,11 +3,11 @@
  */
 public interface ConnectionListener {
 
-    public void onOpenConnection();
+    public void onOpenConnection(Connection connection);
 
-    public void onCloseConnection();
+    public void onCloseConnection(Connection connection);
 
-    public void onRecievedMessage(String mesage);
+    public void onRecievedMessage(Connection connection, String mesage);
 
     public void onException(Exception e);
 }
