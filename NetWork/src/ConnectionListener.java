@@ -9,5 +9,5 @@ public interface ConnectionListener {
 
     public void onRecievedMessage(Connection connection, String mesage);
 
-    public void onException(Exception e);
+    public void onException(Connection connection, Exception e);
 }

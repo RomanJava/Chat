@@ -10,30 +10,59 @@ public class Connection {
     private BufferedReader in;
     private Thread thread;
     private BufferedWriter out;
-    private  ConnectionListener connectionListener;
+    private ConnectionListener connectionListener;
 
-    public Connection(Socket socket, final ConnectionListener connectionListener) throws IOException {
+    public Connection(final Socket socket, final ConnectionListener connectionListener) throws IOException {
         this.socket = socket;
         this.connectionListener = connectionListener;
-        in=new BufferedReader(new InputStreamReader(socket.getInputStream(), Charset.forName("UTF-8")));
-        out=new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-8")));
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream(), Charset.forName("UTF-8")));
+        out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-8")));
 
-        thread=new Thread(new Runnable() {
+        thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     connectionListener.onOpenConnection(Connection.this);
-                    while (!thread.isInterrupted()) connectionListener.onRecievedMessage(Connection.this,in.readLine());
+                    while (!thread.isInterrupted()){
+                        String s=in.readLine();
+                        System.out.println(s);
+                        if(socket.isClosed()) System.out.println("закрыто!!!");
+                        System.out.println(socket.isClosed());
+                        connectionListener.onRecievedMessage(Connection.this, s);
+
+                    }
                 } catch (IOException e) {
-                    connectionListener.onException(e);
-                }
-                finally {
+                    closeConnection();
+                    connectionListener.onException(Connection.this, e);
+                } finally {
                     connectionListener.onCloseConnection(Connection.this);
                 }
 
             }
         });
         thread.start();
+    }
+
+    public void writeMessage(String message) {
+        try {
+            out.write(message);
+            out.flush();
+            System.out.println("Записали "+message+"в конекшн "+this);
+            System.out.println("ПРочитали "+in.readLine());
+        } catch (IOException e) {
+            connectionListener.onException(Connection.this, e);
+            closeConnection();
+        }
+    }
+
+    public void closeConnection(){
+        thread.interrupt();
+        try {
+            socket.close();
+        } catch (IOException e) {
+            connectionListener.onCloseConnection(Connection.this);
+        }
+
     }
 
 
