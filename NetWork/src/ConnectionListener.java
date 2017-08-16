@@ -7,7 +7,7 @@ public interface ConnectionListener {
 
     public void onCloseConnection(Connection connection);
 
-    public void onRecievedMessage(Connection connection, String mesage);
+    public void onRecievedMessage(Connection connection, String message);
 
     public void onException(Connection connection, Exception e);
 }

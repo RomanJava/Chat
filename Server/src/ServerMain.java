@@ -10,8 +10,6 @@ public class ServerMain implements ConnectionListener{
     private ArrayList<Connection> connections=new ArrayList<>();
     private static ServerMain serverMain=new ServerMain();
 
-
-
     public static void main(String[] args) {
         while (true){
             try (ServerSocket serverSocket=new ServerSocket(9991)){
@@ -29,24 +27,25 @@ public class ServerMain implements ConnectionListener{
 
 
     @Override
-    public void onOpenConnection(Connection connection) {
+    public synchronized void onOpenConnection(Connection connection) {
         serverMain.connections.add(connection);
-        System.out.println("Присоединился "+connection);
+        System.out.println("Присоединился: "+connection);
     }
 
     @Override
-    public void onCloseConnection(Connection connection) {
+    public synchronized void onCloseConnection(Connection connection) {
         serverMain.connections.remove(connection);
+        System.out.println("Отвалился:" +connection);
         connection.closeConnection();
     }
 
     @Override
-    public void onRecievedMessage(Connection connection, String message) {
+    public synchronized void onRecievedMessage(Connection connection, String message) {
         sendAll(message);
     }
 
     @Override
-    public void onException(Connection connection, Exception e) {
+    public synchronized void onException(Connection connection, Exception e) {
         System.out.println("Отвалился по эксепшену: "+connection+" "+e.getMessage());
         e.printStackTrace();
 

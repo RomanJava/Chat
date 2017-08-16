@@ -12,6 +12,10 @@ public class Connection {
     private BufferedWriter out;
     private ConnectionListener connectionListener;
 
+    public Connection(String ip, int port, ConnectionListener connectionListener) throws IOException {
+        this(new Socket(ip,port),connectionListener);
+    }
+
     public Connection(final Socket socket, final ConnectionListener connectionListener) throws IOException {
         this.socket = socket;
         this.connectionListener = connectionListener;
@@ -21,17 +25,23 @@ public class Connection {
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                String s="";
                 try {
                     connectionListener.onOpenConnection(Connection.this);
                     while (!thread.isInterrupted()){
-                        String s=in.readLine();
-//                        System.out.println(s);
-//                        System.out.println(socket.isClosed());
-                        connectionListener.onRecievedMessage(Connection.this, s);
-
+                        if(socket.isConnected())s=in.readLine();
+                        if(s==null||s.equals("EXIT"))return;
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            System.out.println("3");
+                            e.printStackTrace();
+                        }
+                        if(s!=null) connectionListener.onRecievedMessage(Connection.this, s);
                     }
                 } catch (IOException e) {
                     closeConnection();
+                    System.out.println("6");
                     connectionListener.onException(Connection.this, e);
                 } finally {
                     connectionListener.onCloseConnection(Connection.this);
@@ -47,6 +57,7 @@ public class Connection {
             out.write(message/*+"\r\n"*/);
             out.flush();
         } catch (IOException e) {
+            System.out.println("2");
             connectionListener.onException(Connection.this, e);
             closeConnection();
         }
@@ -57,6 +68,7 @@ public class Connection {
         try {
             socket.close();
         } catch (IOException e) {
+            System.out.println("1");
             connectionListener.onCloseConnection(Connection.this);
         }
 
