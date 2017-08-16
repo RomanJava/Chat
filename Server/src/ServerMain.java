@@ -42,7 +42,6 @@ public class ServerMain implements ConnectionListener{
 
     @Override
     public void onRecievedMessage(Connection connection, String message) {
-        System.out.println("На сервер получено "+message);
         sendAll(message);
     }
 
@@ -54,10 +53,8 @@ public class ServerMain implements ConnectionListener{
     }
 
     private void sendAll(String message){
-        System.out.println("Server:"+message);
         for (Connection con:connections) {
-            System.out.println("На соединение "+con+ " отправлено "+message);
-            con.writeMessage(message);
+            con.writeMessage(message+"\r\n");
         }
 
     }

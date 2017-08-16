@@ -25,9 +25,8 @@ public class Connection {
                     connectionListener.onOpenConnection(Connection.this);
                     while (!thread.isInterrupted()){
                         String s=in.readLine();
-                        System.out.println(s);
-                        if(socket.isClosed()) System.out.println("закрыто!!!");
-                        System.out.println(socket.isClosed());
+//                        System.out.println(s);
+//                        System.out.println(socket.isClosed());
                         connectionListener.onRecievedMessage(Connection.this, s);
 
                     }
@@ -45,10 +44,8 @@ public class Connection {
 
     public void writeMessage(String message) {
         try {
-            out.write(message);
+            out.write(message/*+"\r\n"*/);
             out.flush();
-            System.out.println("Записали "+message+"в конекшн "+this);
-            System.out.println("ПРочитали "+in.readLine());
         } catch (IOException e) {
             connectionListener.onException(Connection.this, e);
             closeConnection();
